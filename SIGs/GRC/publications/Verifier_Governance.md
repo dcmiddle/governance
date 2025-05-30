@@ -2,11 +2,15 @@
 
 # Context
 
-Confidential Computing requires a trusted Verifier **\[1\]**. This document covers the governance requirements inherent in operating trustworthy Verifiers. A properly governed Verifier must be subjected to a set of Confidential Computing-specific Control Objectives in order to satisfy the requirements of each Persona **\[2\]**.
+Confidential Computing requires a trusted Verifier **\[1\]**.
+This document covers the governance requirements inherent in operating trustworthy Verifiers.
+A properly governed Verifier must be subjected to a set of Confidential Computing-specific Control Objectives in order to satisfy the requirements of each Persona **\[2\]**.
 
 # Problem
 
-A Verifier plays a crucial role in Confidential Computing – it is the ultimate arbiter of the identity and security state of every Confidential Computing workload. A compromised Verifier may lead to the loss of assets intended for a Confidential Computing deployment in the same manner that the compromise of a Hardware Security Module or Certificate authority would lead to insecure reliance and loss of assets. It is therefore extremely important to properly govern Verifier instances to ensure and assess their trustworthiness.
+A Verifier plays a crucial role in Confidential Computing – it is the ultimate arbiter of the identity and security state of every Confidential Computing workload.
+A compromised Verifier may lead to the loss of assets intended for a Confidential Computing deployment in the same manner that the compromise of a Hardware Security Module or Certificate authority would lead to insecure reliance and loss of assets.
+It is therefore extremely important to properly govern Verifier instances to ensure and assess their trustworthiness.
 
 The discussion that follows will refer to the following Roles and Assets inherent in the Verifier space.
 
@@ -14,16 +18,31 @@ The discussion that follows will refer to the following Roles and Assets inheren
 
 | Role | Description and Trust Relationships |
 | :---- | :---- |
-| **Verifier System Operator (VSO)** | The Cloud Service Provider (CSP) or a similar entity that owns and/or operates the hardware and optionally the operating system on which the Verifier Service runs. |
-| **Verifier Service (VS)** | The entity that operates and bears responsibility for the secure operation of a service to assess attestations. The VS may support a single customer or multiple customers defined here as Verifier Tenants. The VS trusts[^1] the VSO and may choose to minimize that trust by operating its Verifier Service Software within a TEE. |
-| **Verifier Tenant (VT)** | The entity that defines Assessment Policies for Confidential Computing workloads and deploys those policies through a Verifier Service (VS). The VT relies upon the correct operation of the VS to enforce the Assessment Policies. The VT trusts the VS directly and VSO transitively. Operationally, the VT may require attestations from the VS itself as the VT assesses the trustworthiness of the VS in each interaction. |
-| **Attesters and Relying Parties (per Tenant)** | The entities that rely on the Verifier Tenant for trust decisions. Typically, the Attester and the Relying Party are associated with the same Verifier Tenant. Trust is placed in the Verifier Tenant directly and the Verifier Service and the VSO transitively. |
+| **Verifier System Operator (VSO)** | The Cloud Service Provider (CSP) or a similar entity that owns and/or operates the hardware and optionally the operating system on which the Verifier Service runs.
+|
+| **Verifier Service (VS)** | The entity that operates and bears responsibility for the secure operation of a service to assess attestations.
+The VS may support a single customer or multiple customers defined here as Verifier Tenants.
+The VS trusts[^1] the VSO and may choose to minimize that trust by operating its Verifier Service Software within a TEE.
+|
+| **Verifier Tenant (VT)** | The entity that defines Assessment Policies for Confidential Computing workloads and deploys those policies through a Verifier Service (VS).
+The VT relies upon the correct operation of the VS to enforce the Assessment Policies.
+The VT trusts the VS directly and VSO transitively.
+Operationally, the VT may require attestations from the VS itself as the VT assesses the trustworthiness of the VS in each interaction.
+|
+| **Attesters and Relying Parties (per Tenant)** | The entities that rely on the Verifier Tenant for trust decisions.
+Typically, the Attester and the Relying Party are associated with the same Verifier Tenant.
+Trust is placed in the Verifier Tenant directly and the Verifier Service and the VSO transitively.
+|
 
-In certain cases these roles can be combined. For instance, if a CSP operates a Verifier Service for all its customers, the roles of Verifier System Operator and Verifier Service may be combined. Similarly, a single-tenant Verifier Service could combine the roles of Verifier Service and Verifier Tenant.
+In certain cases these roles can be combined.
+For instance, if a CSP operates a Verifier Service for all its customers, the roles of Verifier System Operator and Verifier Service may be combined.
+Similarly, a single-tenant Verifier Service could combine the roles of Verifier Service and Verifier Tenant.
 
 ## Assets
 
-The following table lists the assets associated with a Verifier Service that are subject to governance following the guidelines in this document. The table also includes suggestions about **confidentiality** for each listed asset (integrity is always required). For simplicity, it is explicitly assumed that the **availability** of each of the assets is mandatory for the correct functioning of the Verifier.
+The following table lists the assets associated with a Verifier Service that are subject to governance following the guidelines in this document.
+The table also includes suggestions about **confidentiality** for each listed asset (integrity is always required).
+For simplicity, it is explicitly assumed that the **availability** of each of the assets is mandatory for the correct functioning of the Verifier.
 
 The list below assumes a multi-tenant Verifier (single-tenant is a trivial case so covered implicitly).
 
@@ -42,21 +61,29 @@ The list below assumes a multi-tenant Verifier (single-tenant is a trivial case 
 
 # Forces
 
-The Verifier is upstream of all Confidential Computing offerings that utilize it as it is required for  Remote Attestation. It is also one of the roots of trust for all Confidential Computing results. Depending on individual circumstances, the Verifier System Operator, the Verifier Service and the Verifier Tenant are all potential threat vectors. Finally, Verifiers often serve multiple mutually distrustful Tenants.
+The Verifier is upstream of all Confidential Computing offerings that utilize it as it is required for  Remote Attestation.
+It is also one of the roots of trust for all Confidential Computing results.
+Depending on individual circumstances, the Verifier System Operator, the Verifier Service and the Verifier Tenant are all potential threat vectors.
+Finally, Verifiers often serve multiple mutually distrustful Tenants.
 
 The following considerations thus become important subjects of Verifier governance:
 
 1. **Trust in Verifier:** Because of the exceptionally high trust afforded to the Verifier by the Tenant, the Tenant cares that the correct Verifier Service is contacted during Remote Attestation, that the Verifier Service is in a trustworthy state (e.g., it is running the expected code, that it is properly administered and configured, and executing the most current policies specified by each Verifier Tenant).  
      
-2. **Availability and Performance:** A Verifier outage or inadequate performance risks bringing down its dependent services, which can be catastrophic. In case of a multi-tenant Verifier, Tenants may additionally pose performance and availability (“noisy neighbor”) threats to their peers.  
+2. **Availability and Performance:** A Verifier outage or inadequate performance risks bringing down its dependent services, which can be catastrophic.
+In case of a multi-tenant Verifier, Tenants may additionally pose performance and availability (“noisy neighbor”) threats to their peers. 
      
-3. **Confidentiality and Integrity:** A Verifier’s failure to adequately protect its policies[^3] and secrets or generate accurate results would critically undermine the trust in all the confidential workloads dependent on it. In case of a multi-tenant Verifier, Tenants present security threats to their peers. Additionally, per “Privacy Considerations” in **\[1\]**, care should be taken to ensure confidentiality of Evidence and Attestation Results.  
+3. **Confidentiality and Integrity:** A Verifier’s failure to adequately protect its policies[^3] and secrets or generate accurate results would critically undermine the trust in all the confidential workloads dependent on it.
+In case of a multi-tenant Verifier, Tenants present security threats to their peers.
+Additionally, per “Privacy Considerations” in **\[1\]**, care should be taken to ensure confidentiality of Evidence and Attestation Results. 
      
-4. **System of Record Considerations:** Auditors and incident responders alike will care about the Verifier Service and Verifier Tenant histories, in addition to their present state. This includes the history and governance of policies (including both Verifier Service policies and policies related to the administration of the Verifier Tenant), and the history of Attestation Results.
+4. **System of Record Considerations:** Auditors and incident responders alike will care about the Verifier Service and Verifier Tenant histories, in addition to their present state.
+This includes the history and governance of policies (including both Verifier Service policies and policies related to the administration of the Verifier Tenant), and the history of Attestation Results.
 
 # Solution
 
-The terms MUST/SHOULD/MAY etc. below are used in accordance with **\[3\]**. Every SHOULD recommendation is explained separately in the “SHOULD vs. MUST Clarifications” section towards the end of this document.
+The terms MUST/SHOULD/MAY etc. below are used in accordance with **\[3\]**.
+Every SHOULD recommendation is explained separately in the “SHOULD vs. MUST Clarifications” section towards the end of this document.
 
 ![Solution diagram](./images/verifier_sol.png)
 
@@ -103,15 +130,20 @@ The numbers in the left column below refer to **\[3\]**. Rows listed as N/A indi
 
 # “SHOULD” vs. “MUST” Clarifications
 
-a. This requirement is only present if the Tenant is concerned that Evidence submitted by the Attester during Remote Attestation is of a sensitive nature or if it directly uses the Attestation Results. Confidentiality of submitted Evidence and Attestation Results can be achieved via Transport Level Security between the Attester and the Verifier Tenant, with Verifier Tenant authenticated by the Attester prior to the Transport Level Security being established.
+a. This requirement is only present if the Tenant is concerned that Evidence submitted by the Attester during Remote Attestation is of a sensitive nature or if it directly uses the Attestation Results.
+Confidentiality of submitted Evidence and Attestation Results can be achieved via Transport Level Security between the Attester and the Verifier Tenant, with Verifier Tenant authenticated by the Attester prior to the Transport Level Security being established.
 
-b. An enterprise can decide on SLAs for the Verifier(s) it uses. While it is advisable to attain the highest possible availability, doing so is at the discretion of the customer.
+b. An enterprise can decide on SLAs for the Verifier(s) it uses.
+While it is advisable to attain the highest possible availability, doing so is at the discretion of the customer.
 
-c. Disclosing Verifier Tenant policies, Evidence or Attestation Results may ease an attacker’s job (per the Privacy Considerations section of **\[1\]**). That said, such confidentiality protections are best thought of as defense-in-depth.
+c. Disclosing Verifier Tenant policies, Evidence or Attestation Results may ease an attacker’s job (per the Privacy Considerations section of **\[1\]**).
+That said, such confidentiality protections are best thought of as defense-in-depth.
 
 d. Many jurisdictions require tenants to securely bring their own keys and for keys to be periodically rotated, thus failure to offer such functionality risks making the corresponding Verifier implementation unsuitable for regulated customers.
  
-e. Consider utilizing Confidential Computing in a public cloud. If the Verifier Service is operated by the Cloud Service Provider (CSP) and acts maliciously, full protection of data-in-use against the CSP may not be fully achieved. Mitigations may involve using a separate Verifier Service isolated from the CSP, relying on a decentralized Verifier Service, or continuously and closely monitoring and auditing the CSP’s Verifier Service.
+e. Consider utilizing Confidential Computing in a public cloud.
+If the Verifier Service is operated by the Cloud Service Provider (CSP) and acts maliciously, full protection of data-in-use against the CSP may not be fully achieved.
+Mitigations may involve using a separate Verifier Service isolated from the CSP, relying on a decentralized Verifier Service, or continuously and closely monitoring and auditing the CSP’s Verifier Service.
 
 # References
 
@@ -122,7 +154,8 @@ e. Consider utilizing Confidential Computing in a public cloud. If the Verifier 
 5. NIST SP 800-57, Part 1, Section 8.3.5, “Revocation”: [https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final](https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final)  
 6. NIST SP 800-57, Part 2, Section 6.2.10, “Revocation”: [https://csrc.nist.gov/pubs/sp/800/57/pt2/r1/final](https://csrc.nist.gov/pubs/sp/800/57/pt2/r1/final)
 
-[^1]:  VHO is expected to provide physical security to the hardware, maintain timely patches, etc. The precise degree of trust required depends on the situation and outside the scope of this document.
+[^1]:  VHO is expected to provide physical security to the hardware, maintain timely patches, etc.
+The precise degree of trust required depends on the situation and outside the scope of this document.
 
 [^2]:  RC is short for “Requires Confidentiality”
 
